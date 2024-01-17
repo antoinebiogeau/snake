@@ -7,12 +7,11 @@ public class SNC : MonoBehaviour
 {
     public float speed = 2.0f;
     private Vector3 direction = Vector3.forward;
-    private float score = 0f;
-    
+    private int score = 0;
+    [SerializeField] private UIManager uimanager;
 
     void Update()
     {
-        // Gestion des inputs pour changer de direction
         if (Input.GetKeyDown(KeyCode.UpArrow)) direction = Vector3.forward;
         if (Input.GetKeyDown(KeyCode.DownArrow)) direction = Vector3.back;
         if (Input.GetKeyDown(KeyCode.LeftArrow)) direction = Vector3.left;
@@ -24,7 +23,6 @@ public class SNC : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        // Vérification si le serpent a collecté un item
         ITM item = other.GetComponent<ITM>();
         if (item != null)
         {
@@ -35,7 +33,6 @@ public class SNC : MonoBehaviour
     public void Die()
     {
         Destroy(gameObject);
-        //exit le jeu ou l'editeur
         if (Application.isEditor)
         {
             UnityEditor.EditorApplication.isPlaying = false;
@@ -65,7 +62,6 @@ public class SNC : MonoBehaviour
         int finalScore = Mathf.RoundToInt(amount * scoreMultiplier);
         score += finalScore;
         Debug.Log("Score: " + score);
-        
-    }
-    
+        uimanager.UpdateScore(score);
+    }  
 }
