@@ -833,6 +833,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 5
+  segmentPrefab: {fileID: 1464648420706927679, guid: 1352bc25dce54a1429e48d57a9a9adf1,
+    type: 3}
+  delay: 2
   uimanager: {fileID: 2001568658}
 --- !u!1 &2001568657
 GameObject:
