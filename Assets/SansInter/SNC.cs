@@ -71,7 +71,6 @@ public class SNC : MonoBehaviour
                 }
             }
         }
-        throw new NotImplementedException();
     }
 
     void OnTriggerEnter(Collider other)
