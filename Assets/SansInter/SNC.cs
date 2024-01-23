@@ -9,68 +9,31 @@ public class SNC : MonoBehaviour
     public float speed = 2.0f;
     public GameObject segmentPrefab;
     public int delay = 10; // Le délai entre les segments, plus le nombre est grand, plus la distance est grande
-    private List<Vector3> positions = new List<Vector3>();
+    private LinkedList<Vector3> positions = new LinkedList<Vector3>();
     private Queue<GameObject> segments = new Queue<GameObject>();
     private Vector3 direction = Vector3.forward;
     private int score = 0;
     [SerializeField] private UIManager uimanager;
     private Vector3 lastDirection;
+    private float scoreMultiplier = 1f;
         
         
     void Start()
     {
-        segments.Enqueue(this.gameObject); // La tête est le premier segment
-        lastDirection = direction;
+        segments.Enqueue(this.gameObject);
+        positions.AddLast(transform.position);
     }
     void Update()
     {
-        
-        
-        if (Input.GetKeyDown(KeyCode.UpArrow) && direction != Vector3.back)
-        {
-            direction = Vector3.forward;
-        }
-        else if (Input.GetKeyDown(KeyCode.DownArrow) && direction != Vector3.forward)
-        {
-            direction = Vector3.back;
-        }
-        else if (Input.GetKeyDown(KeyCode.LeftArrow) && direction != Vector3.right)
-        {
-            direction = Vector3.left;
-        }
-        else if (Input.GetKeyDown(KeyCode.RightArrow) && direction != Vector3.left)
-        {
-            direction = Vector3.right;
-        }
-
-        transform.Translate(direction * speed * Time.deltaTime, Space.World);
+        HandleInput();
     }
-
     private void FixedUpdate()
     {
-        if (positions.Count > segments.Count * delay)
-        {
-            positions.RemoveAt(0);
-        }
-        positions.Add(transform.position);
-
-        // Déplacement de la tête
-        transform.Translate(direction * speed * Time.deltaTime, Space.World);
+        // Mise à jour de la tête
+        MoveHead();
 
         // Mise à jour des segments
-        int segmentIndex = 1;
-        foreach (var segment in segments)
-        {
-            if (segment != gameObject) // Ignorer la tête
-            {
-                int positionIndex = segmentIndex * delay;
-                if (positionIndex < positions.Count)
-                {
-                    segment.transform.position = positions[positions.Count - 1 - positionIndex];
-                    segmentIndex++;
-                }
-            }
-        }
+        UpdateSegments();
         throw new NotImplementedException();
     }
 
@@ -102,7 +65,7 @@ public class SNC : MonoBehaviour
         yield return new WaitForSeconds(duration);
         speed /= multiplier;
     }
-    private float scoreMultiplier = 1f;
+  
 
     public IEnumerator ChangeScoreMultiplier(float multiplier, float duration)
     {
@@ -118,9 +81,59 @@ public class SNC : MonoBehaviour
         Debug.Log("Score: " + score);
         uimanager.UpdateScore(score);
     }  
-    void AddSegment()
+void AddSegment()
+{
+    // Utilisation de positions.Last.Value pour obtenir la dernière position enregistrée
+    GameObject segment = Instantiate(segmentPrefab, positions.Last.Value, Quaternion.identity);
+    segments.Enqueue(segment);
+}
+    
+    private void MoveHead()
     {
-        GameObject segment = Instantiate(segmentPrefab, positions[0], Quaternion.identity);
-        segments.Enqueue(segment);
+        transform.Translate(direction * speed * Time.fixedDeltaTime, Space.World);
+        positions.AddLast(transform.position);
+
+        // Maintenir une taille fixe pour la liste des positions
+        if (positions.Count > segments.Count * delay + 1)
+        {
+            positions.RemoveFirst();
+        }
+    }
+
+    private void UpdateSegments()
+    {
+        int segmentIndex = 1;
+        foreach (var segment in segments)
+        {
+            if (segment != gameObject) // Ignorer la tête
+            {
+                LinkedListNode<Vector3> node = positions.Last;
+                for (int i = 0; i < segmentIndex * delay; ++i)
+                {
+                    node = node.Previous;
+                }
+                segment.transform.position = node.Value;
+                segmentIndex++;
+            }
+        }
+    }
+    private void HandleInput()
+    {
+        if (Input.GetKeyDown(KeyCode.UpArrow) && direction != Vector3.back)
+        {
+            direction = Vector3.forward;
+        }
+        else if (Input.GetKeyDown(KeyCode.DownArrow) && direction != Vector3.forward)
+        {
+            direction = Vector3.back;
+        }
+        else if (Input.GetKeyDown(KeyCode.LeftArrow) && direction != Vector3.right)
+        {
+            direction = Vector3.left;
+        }
+        else if (Input.GetKeyDown(KeyCode.RightArrow) && direction != Vector3.left)
+        {
+            direction = Vector3.right;
+        }
     }
 }

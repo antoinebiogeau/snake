@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract  class ITM : MonoBehaviour
+public abstract class ITM : MonoBehaviour
 {
         protected float lifetime = 10f;
         public abstract void ApplyEffect(SNC snake);
@@ -16,4 +16,5 @@ public abstract  class ITM : MonoBehaviour
                 yield return new WaitForSeconds(time);
                 Destroy(gameObject);
         }
+
 }

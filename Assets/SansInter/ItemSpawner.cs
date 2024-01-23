@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class ItemSpawner : MonoBehaviour
 {
@@ -33,5 +35,13 @@ public class ItemSpawner : MonoBehaviour
 
         GameObject itemPrefab = itemPrefabs[Random.Range(0, itemPrefabs.Length)];
         Instantiate(itemPrefab, spawnPoint, Quaternion.identity);
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            other.GetComponent<SNC>().Die();
+        }
     }
 }
