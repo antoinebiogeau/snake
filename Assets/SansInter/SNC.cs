@@ -8,7 +8,7 @@ public class SNC : MonoBehaviour
 {
     public float speed = 2.0f;
     public GameObject segmentPrefab;
-    public int delay = 10; // Le délai entre les segments, plus le nombre est grand, plus la distance est grande
+    public int delay = 10;
     private LinkedList<Vector3> positions = new LinkedList<Vector3>();
     private Queue<GameObject> segments = new Queue<GameObject>();
     private Vector3 direction = Vector3.forward;
@@ -16,8 +16,9 @@ public class SNC : MonoBehaviour
     [SerializeField] private UIManager uimanager;
     private Vector3 lastDirection;
     private float scoreMultiplier = 1f;
-        
-        
+    public GameObject particleSystemPrefab;
+
+
     void Start()
     {
         segments.Enqueue(this.gameObject);
@@ -29,12 +30,8 @@ public class SNC : MonoBehaviour
     }
     private void FixedUpdate()
     {
-        // Mise à jour de la tête
         MoveHead();
-
-        // Mise à jour des segments
         UpdateSegments();
-        throw new NotImplementedException();
     }
 
     void OnTriggerEnter(Collider other)
@@ -43,6 +40,7 @@ public class SNC : MonoBehaviour
         if (item != null)
         {
             item.ApplyEffect(this);
+            PlayParticleSystem();
             Destroy(other.gameObject);
             AddSegment();
         }
@@ -83,7 +81,6 @@ public class SNC : MonoBehaviour
     }  
 void AddSegment()
 {
-    // Utilisation de positions.Last.Value pour obtenir la dernière position enregistrée
     GameObject segment = Instantiate(segmentPrefab, positions.Last.Value, Quaternion.identity);
     segments.Enqueue(segment);
 }
@@ -92,8 +89,6 @@ void AddSegment()
     {
         transform.Translate(direction * speed * Time.fixedDeltaTime, Space.World);
         positions.AddLast(transform.position);
-
-        // Maintenir une taille fixe pour la liste des positions
         if (positions.Count > segments.Count * delay + 1)
         {
             positions.RemoveFirst();
@@ -105,7 +100,7 @@ void AddSegment()
         int segmentIndex = 1;
         foreach (var segment in segments)
         {
-            if (segment != gameObject) // Ignorer la tête
+            if (segment != gameObject)
             {
                 LinkedListNode<Vector3> node = positions.Last;
                 for (int i = 0; i < segmentIndex * delay; ++i)
@@ -134,6 +129,27 @@ void AddSegment()
         else if (Input.GetKeyDown(KeyCode.RightArrow) && direction != Vector3.left)
         {
             direction = Vector3.right;
+        }
+    }
+    protected void PlayParticleSystem()
+    {
+        if (particleSystemPrefab != null)
+        {
+            GameObject particleSystemInstance = Instantiate(particleSystemPrefab, transform.position, Quaternion.identity);
+            ParticleSystem ps = particleSystemInstance.GetComponent<ParticleSystem>();
+            if (ps != null)
+            {
+                ps.Play();
+                Destroy(particleSystemInstance, ps.main.duration);
+            }
+            else
+            {
+                Destroy(particleSystemInstance);
+            }
+        }
+        else
+        {
+            Debug.LogError("ParticleSystem prefab is not assigned!");
         }
     }
 }

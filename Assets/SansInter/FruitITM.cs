@@ -11,5 +11,6 @@ public class FruitITM : ITM
     {
         snake.AddScore(scoreAmount);
     }
-    
+
+   
 }

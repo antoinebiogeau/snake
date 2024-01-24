@@ -5,7 +5,7 @@ using UnityEngine;
 public abstract class ITM : MonoBehaviour
 {
         protected float lifetime = 10f;
-        public abstract void ApplyEffect(SNC snake);
+    public abstract void ApplyEffect(SNC snake);
         void Start()
         {
                 StartCoroutine(DestroyAfterTime(lifetime));
